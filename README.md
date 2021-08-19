@@ -1,61 +1,21 @@
-# Neo4j Example with GraphQL and Apollo
+# Rapid Chess
 
-This is a simple set up for Next using Neo4j Database with GraphQL and Apollo. Neo4j's Movies dataset example is used to run the example.
+This is a personal project trying to implement a chess game, initially to be played just offline (plans to use socket in a near future). It's been developed with clean architecture, NextJS, TypeScript, Neo4j, GraphQL and Apollo.
 
-## Deploy your own
+My main goal with this project is to train my skills on that technologies that are pretty new to me, work my logic trying to get all chess rules, and have fun playing it, 'cause I love chess :)
+## Technologies
 
-Once you have access to [the environment variables you'll need](#step-3-set-up-environment-variables), deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
+- [ReactJS](https://reactjs.org/)
+- [NextJS](https://nextjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Neo4j](https://neo4j.com/)
+- [GraphQL](https://graphql.org/)
+- [Apollo](https://www.apollographql.com/)
+- [Styled Components](https://styled-components.com/)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-apollo-neo4j-graphql&project-name=with-apollo-neo4j-graphql&repository-name=with-apollo-neo4j-graphql&env=NEO4J_URI,NEO4J_USER,NEO4J_PASSWORD&envDescription=Required%20to%20connect%20the%20app%20with%20a%20Neo4j%20database&envLink=https://github.com/vercel/next.js/tree/canary/examples/with-apollo-neo4j-graphql%23step-3-set-up-environment-variables)
+## Installing & Running
 
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
-
-```bash
-npx create-next-app --example with-apollo-neo4j-graphql with-apollo-neo4j-graphql-app
-# or
-yarn create next-app --example with-apollo-neo4j-graphql with-apollo-neo4j-graphql-app
-```
-
-## Configuration
-
-### Step 1. Create a Neo4j database
-
-First, you'll need a Neo4j database. [Neo4j Desktop](https://neo4j.com/download/) and [Neo4j Online Sandbox](https://neo4j.com/sandbox/) are good and free to use options.
-
-### Step 2. Add the movie graph model to the database
-
-This example uses a database containing _Movies_, you can add it like so:
-
-```bash
-:play movie-graph
-```
-
-Also included is a Cypher [movie sample](./movie-sample.md) query if needed.
-
-### Step 3. Set up environment variables
-
-Next, copy the `.env.local.example` file in this directory to `.env.local` (which will be ignored by Git):
-
-```bash
-cp .env.local.example .env.local
-```
-
-Then set each variable on `.env.local` to match your database uri and credentials.
-
-## Deploy on Vercel
-
-You can deploy this app to the cloud with [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
-
-### Deploy Your Local Project
-
-To deploy your local project to Vercel, push it to GitHub/GitLab/Bitbucket and [import to Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example).
-
-**Important**: When you import your project on Vercel, make sure to click on **Environment Variables** and set them to match your `.env.local` file.
-
-### Deploy from Our Template
-
-Alternatively, you can deploy using our template by clicking on the Deploy button below.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-apollo-neo4j-graphql&project-name=with-apollo-neo4j-graphql&repository-name=with-apollo-neo4j-graphql&env=NEO4J_URI,NEO4J_USER,NEO4J_PASSWORD&envDescription=Required%20to%20connect%20the%20app%20with%20a%20Neo4j%20database&envLink=https://github.com/vercel/next.js/tree/canary/examples/with-apollo-neo4j-graphql%23step-3-set-up-environment-variables)
+1. Clone the repository: `https://github.com/leopoldo8/rapid-chess`
+2. Access the directory: `cd rapid-chess`
+3. Install the dependencies: `npm install`
+4. Run the app: `npm run dev`
