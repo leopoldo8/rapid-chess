@@ -1,8 +1,8 @@
 # Rapid Chess
 
-This is a personal project trying to implement a chess game, initially to be played just offline (plans to use socket in a near future). It's been developed with clean architecture, NextJS, TypeScript, Neo4j, GraphQL and Apollo.
+This is a personal project trying to implement a chess game, initially to be played just offline (plans to use socket in a near future). It's being developed with clean architecture, NextJS, TypeScript, Neo4j, GraphQL and Apollo.
 
-My main goal with this project is to train my skills on that technologies that are pretty new to me, work my logic trying to get all chess rules, and have fun playing it, 'cause I love chess :)
+My main goal with this project is to train my skills on Neo4j, GraphQL and Apollo technologies that are pretty new to me, work my logic trying to get all chess rules, and have fun playing it, 'cause I love chess :)
 ## Technologies
 
 - [ReactJS](https://reactjs.org/)
