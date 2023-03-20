@@ -1,10 +1,9 @@
 import { IPieceMovementProps } from "../../domain/usecases/IPiecesMovement.usecase";
-import { IFieldOfViewItem, TFieldOfView } from "../../domain/usecases/IPieceFieldOfView.usecase";
+import { IFieldOfViewItem, IFindPiece, TFieldOfView } from "../../domain/usecases/IPieceFieldOfView.usecase";
 import { IBoardCoords } from "../../domain/models/BoardCoords.model";
 
 import PieceManager from "../PieceManager";
 import Board from "../Board";
-import { PieceProps } from "../../domain/models/PiecesType";
 
 class PieceFieldOfView {
   fieldOfView = new Map<string, TFieldOfView>();
@@ -13,11 +12,22 @@ class PieceFieldOfView {
     return movements.filter(movement => !this.detectCollisionOnSquare(movement, direction, props));
   }
 
-  detectCollisionOnSquare(coords: IBoardCoords, direction: string, props: IPieceMovementProps): boolean {
+  private detectCollisionOnSquare(coords: IBoardCoords, direction: string, props: IPieceMovementProps): boolean {
     const element = Board.getPieceFromCoords(coords);
     const piece = PieceManager.getPiece(element);
 
     const fieldOfViewDirection = this.createOrGetDirectionFromFOV(direction);
+
+    /**
+     * Knight edge case
+     */
+    if (direction === 'outOfFieldOfView') {
+      if (piece) {
+        this.addItemToFOV(direction, { piece, position: coords });
+      }
+
+      return false;
+    }
 
     if (piece) {
       const isSameColor = piece.color === props.color;
@@ -47,7 +57,7 @@ class PieceFieldOfView {
     return !!fieldOfViewDirection.length;
   }
 
-  createOrGetDirectionFromFOV(direction: string): TFieldOfView {
+  private createOrGetDirectionFromFOV(direction: string): TFieldOfView {
     if (this.fieldOfView.has(direction)) {
       return this.fieldOfView.get(direction);
     }
@@ -57,30 +67,30 @@ class PieceFieldOfView {
     return initialValue;
   }
 
-  addItemToFOV(direction: string, item: IFieldOfViewItem) {
+  private addItemToFOV(direction: string, item: IFieldOfViewItem) {
     const fov = this.createOrGetDirectionFromFOV(direction);
 
     fov.push(item);
     this.fieldOfView.set(direction, fov);
   }
 
-  hasPieceInFOV(pieceSpec: PieceProps): boolean {
-    const valuesIterator = this.fieldOfView.values();
-    let hasPiece = false;
+  findPieceInFOV(id: string): null | IFindPiece {
+    let result = null;
 
-    let item = valuesIterator.next();
-    while (!item.done && !hasPiece) {
-      const { value }: { value: TFieldOfView } = item;
+    this.fieldOfView.forEach((pieces, direction) => {
+      const index = pieces.findIndex(({ piece }) => piece.id === id);
 
-      hasPiece = value.some(({ piece }) => (
-        piece.color === pieceSpec.color
-        && piece.type === pieceSpec.type
-      ));
+      if (index >= 0) {
+        result = {
+          index,
+          direction
+        };
 
-      item = valuesIterator.next();
-    }
+        return;
+      }
+    });
 
-    return hasPiece;
+    return result;
   }
 }
 

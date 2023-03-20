@@ -82,6 +82,15 @@ class Piece extends Draggable implements IPieceUseCase {
     pieces.forEach((piece: HTMLElement) => piece.style.pointerEvents = value);
   }
 
+  get defaultMovementProps() {
+    return {
+      moveCount: this.moveCount,
+      isTakingAPiece: true,
+      color: this.pieceProps.color,
+      position: this.boardPosition
+    }
+  }
+
   get type() {
     return this.pieceProps.type;
   }

@@ -1,5 +1,7 @@
+import Piece from "../../usecases/Piece";
 import { IBoardCoords } from "../models/BoardCoords.model";
-import { TPieceColor } from "../models/PiecesType";
+import { PieceProps, TPieceColor } from "../models/PiecesType";
+import { TFieldOfView } from "./IPieceFieldOfView.usecase";
 
 export interface IPieceMovementProps {
   moveCount: number;
@@ -8,9 +10,14 @@ export interface IPieceMovementProps {
   position: IBoardCoords;
 }
 
-export interface IVerifyForCheck {
-  color: TPieceColor;
+export interface IPiecePosition {
+  piece: PieceProps;
   position: IBoardCoords;
+}
+
+export interface IVerifyPinResult {
+  direction: TFieldOfView;
+  piece: Piece;
 }
 
 export type TPieceSingleMovement = IBoardCoords[];

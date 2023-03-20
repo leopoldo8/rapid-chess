@@ -1,5 +1,5 @@
+import Piece from "../../usecases/Piece";
 import { IBoardCoords } from "../models/BoardCoords.model";
-import { TPieceColor } from "../models/PiecesType";
 
 export interface IBoardUseCaseAddPieceToArgs {
   el: HTMLElement;
@@ -19,7 +19,7 @@ export interface IBoardUseCase {
   
   getPieceFromCoords(coords: IBoardCoords): HTMLDivElement | null;
 
-  setCheck(color: TPieceColor): void;
+  setCheck(kingPosition: IBoardCoords): void;
 
   removeCheck(): void;
 }

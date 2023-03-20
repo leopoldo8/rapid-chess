@@ -1,4 +1,4 @@
-import { IPieceMovementProps, IVerifyForCheck, TGetPieceMovement, TPieceMovement, TPieceSingleMovement } from "../../domain/usecases/IPiecesMovement.usecase";
+import { IPieceMovementProps, IVerifyPinResult, TGetPieceMovement, TPieceMovement, TPieceSingleMovement } from "../../domain/usecases/IPiecesMovement.usecase";
 import { EPiecesType, TPieceColor } from "../../domain/models/PiecesType";
 
 import { PawnMovement } from "./Pieces/pawn";
@@ -9,8 +9,13 @@ import { QueenMovement } from "./Pieces/queen";
 import { KingMovement } from "./Pieces/king";
 import { IBoardCoords } from "../../domain/models/BoardCoords.model";
 
-import PieceFieldOfView from "../PieceFieldOfView";
-import BoardManager from "../BoardManager";
+import PieceFieldOfView from "../PieceFieldOfView/PieceFieldOfView.usecase";
+import PieceManager from "../PieceManager";
+import togglePiece from "../../utils/togglePieceColor";
+import Piece from "../Piece";
+import { IBoardManagerCheck, IBoardManagerFindInFOV } from "../../domain/usecases/IBoardManager.usecase";
+import { TFieldOfView } from "../../domain/usecases/IPieceFieldOfView.usecase";
+import compareCoords from "../../utils/compareCoords";
 
 class PieceMovement {
   fieldOfView = new PieceFieldOfView();
@@ -24,6 +29,21 @@ class PieceMovement {
     [EPiecesType.king]: KingMovement
   }
 
+  getCheckState(turn: TPieceColor): IBoardManagerCheck {
+    const oppositeKing = PieceManager.getPiece({ type: EPiecesType.king, color: togglePiece(turn) });
+    const piecesWithTheColorTurn = PieceManager.piecesArray.filter(piece => piece.color === turn);
+    const findResult = this.findPieceAsFirstInSelectsFOV(oppositeKing, piecesWithTheColorTurn);
+
+    if (findResult) {
+      return {
+        checkers: findResult.pieces,
+        checked: findResult.pieceSearched
+      }
+    }
+
+    return null;
+  }
+
   getPossibleMovementsByPieceType(type: EPiecesType, props: IPieceMovementProps): TPieceSingleMovement {
     this.fieldOfView = new PieceFieldOfView();
     const movement = this.movements[type](props);
@@ -31,30 +51,101 @@ class PieceMovement {
     const resultantMovements = Object.keys(movement).map(key => {
       const movements: IBoardCoords[] = movement[key];
       const possibleMovements = this.sanitizeMovementResult(movements, props);
-      
-      if (key !== 'outOfFieldOfView') {
-        return this.fieldOfView.applyPieceFOVOnMovements(possibleMovements, key, props);
-      }
 
-      return possibleMovements;
+      return this.fieldOfView.applyPieceFOVOnMovements(possibleMovements, key, props);
     }) as TPieceMovement;
 
     return this.flattenPieceMovement(resultantMovements);
   }
 
-  verifyForCheck(type: EPiecesType, props: IVerifyForCheck) {
-    const otherKing = {
-      type: EPiecesType.king,
-      color: props.color === 'light' ? 'dark' : 'light' as TPieceColor
+  updateFieldOfView(piece: Piece) {
+    return this.getPossibleMovementsByPieceType(piece.type, {
+      moveCount: piece.moveCount,
+      isTakingAPiece: true,
+      color: piece.color,
+      position: piece.boardPosition
+    });
+  }
+
+  movementContinuesOnDirection(to: IBoardCoords, direction: TFieldOfView) {
+    return direction.some((fieldOfViewItem) => compareCoords(fieldOfViewItem.position, to));
+  }
+
+  verifyPin(targetPiece: Piece): IVerifyPinResult | null {
+    let result = null;
+
+    PieceManager.piecesArray
+      .filter(piece => piece.color !== targetPiece.color)
+      .forEach((piece) => {
+        this.updateFieldOfView(piece);
+
+        const targetPieceFindResult = this.fieldOfView.findPieceInFOV(targetPiece.id);
+
+        const { id } = PieceManager.getPiece({
+          type: EPiecesType.king,
+          color: targetPiece.color
+        });
+
+        const targetKingFindResult = this.fieldOfView.findPieceInFOV(id);
+
+        if (
+          targetPieceFindResult && targetPieceFindResult.index === 0
+          && targetKingFindResult && targetKingFindResult.index === 1
+          && targetPieceFindResult.direction === targetKingFindResult.direction
+        ) {
+          result = {
+            direction: this.fieldOfView.fieldOfView.get(targetPieceFindResult.direction),
+            piece
+          };
+        }
+      });
+
+    return result;
+  }
+
+  findPieceAsFirstInSelectsFOV(pieceSearched: Piece, piecesToVerify: Piece[] = PieceManager.piecesArray): IBoardManagerFindInFOV | null {
+    const getFindPieceResult = (piece: Piece) => {
+      if (!piece.element.parentElement) {
+        return {
+          piece,
+          resultFind: null
+        };
+      }
+
+      this.updateFieldOfView(piece);
+
+      const resultFind = this.fieldOfView.findPieceInFOV(pieceSearched.id);
+
+      return {
+        piece,
+        resultFind
+      };
     }
 
-    this.getPossibleMovementsByPieceType(type, {
-      moveCount: 0,
-      isTakingAPiece: true,
-      ...props
-    });
+    const pieces = piecesToVerify
+      .map(getFindPieceResult)
+      .filter(({ piece, resultFind }) => resultFind && (resultFind.index === 0 || piece.type === EPiecesType.knight))
+      .map(({ piece, resultFind }) => {
+        this.updateFieldOfView(piece);
 
-    return this.fieldOfView.hasPieceInFOV(otherKing);
+        const movements = this.movements[piece.type](piece.defaultMovementProps);
+      
+        return {
+          piece,
+          checkingMovement: this.sanitizeMovementResult(this.flattenPieceMovement(movements[resultFind.direction]), piece.defaultMovementProps),
+          movements: this.sanitizeMovementResult(this.flattenPieceMovement(movements), piece.defaultMovementProps),
+          direction: resultFind ? this.fieldOfView.fieldOfView.get(resultFind.direction) : null
+        };
+      });
+
+    if (pieces.length) {
+      return {
+        pieceSearched,
+        pieces
+      };
+    }
+
+    return null;
   }
 
   private sanitizeMovementResult(movements: TPieceSingleMovement, props: IPieceMovementProps): TPieceSingleMovement {
@@ -68,8 +159,14 @@ class PieceMovement {
     ));
   }
 
-  private flattenPieceMovement(movements: TPieceMovement): TPieceSingleMovement {
-    return Object.keys(movements).map(key => movements[key]).flat();
+  private flattenPieceMovement(movements: TPieceMovement, flatArray: boolean = true): TPieceSingleMovement {
+    const arr = Object.keys(movements).map(key => movements[key]);
+
+    if (flatArray) {
+      return arr.flat();
+    }
+
+    return arr;
   }
 }
 

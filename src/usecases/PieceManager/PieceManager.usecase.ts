@@ -53,6 +53,22 @@ class PieceManager {
     return null;
   }
 
+  get piecesArray(): Piece[] {
+    const array = [];
+    const valuesIterator = this.pieces.values();
+
+    let item = valuesIterator.next();
+    while (!item.done) {
+      if (item.value.element) {
+        array.push(item.value);
+      }
+
+      item = valuesIterator.next();
+    }
+    
+    return array;
+  }
+
   private getIdFromElement(element: HTMLElement): string {
     return element.getAttribute('data-piece');
   }

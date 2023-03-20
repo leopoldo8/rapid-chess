@@ -19,7 +19,7 @@ export const Table = styled.table`
   }
 
   .--check {
-    background: #ff0038;
+    background: #ff0038 !important;
   }
 `;
 

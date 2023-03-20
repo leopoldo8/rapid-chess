@@ -6,4 +6,9 @@ export interface IFieldOfViewItem {
   piece: Piece
 }
 
+export interface IFindPiece {
+  direction: string;
+  index: number;
+}
+
 export type TFieldOfView = IFieldOfViewItem[];

@@ -1,7 +1,8 @@
 import { IBoardCoords, TBoardColumn, TBoardRow } from "../../domain/models/BoardCoords.model";
 import { IBoardUseCase, IBoardUseCaseAddPieceToArgs } from "../../domain/usecases/IBoard.usecase";
-import { EPiecesType, TPieceColor } from "../../domain/models/PiecesType";
+import { EPiecesType } from "../../domain/models/PiecesType";
 import PieceManager from "../PieceManager";
+import Piece from "../Piece";
 
 class Board implements IBoardUseCase {
   constructor(
@@ -16,10 +17,8 @@ class Board implements IBoardUseCase {
     }
   }
 
-  setCheck(color: TPieceColor) {
-    const piece = PieceManager.getPiece({ type: EPiecesType.king, color });
-
-    const tableCell = this.getTableCellFromCoords(piece.boardPosition);
+  setCheck(kingPosition: IBoardCoords) {
+    const tableCell = this.getTableCellFromCoords(kingPosition);
 
     tableCell.classList.add(this.checkClass);
   }
